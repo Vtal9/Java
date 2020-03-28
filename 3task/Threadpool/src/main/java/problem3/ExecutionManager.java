@@ -1,4 +1,4 @@
-package task3;
+package problem3;
 
 
 public interface ExecutionManager {

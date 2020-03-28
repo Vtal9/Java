@@ -1,38 +1,28 @@
-package edu.phystech.threadpools;
+package problem1;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class ScalableThreadPool implements ThreadPool {
-    private final int minNumberOfThreads;
-    private final int maxNumberOfThreads;
+public class FixedThreadPool implements ThreadPool {
 
     private final ArrayList<ThreadPoolWorker> threadPoolWorkers;
     private final LinkedList<Runnable> tasks;
 
-    ScalableThreadPool(int min, int max) {
-        threadPoolWorkers = new ArrayList<ThreadPoolWorker>(min);
+    public FixedThreadPool(int numberOfThreads) {
+        this.threadPoolWorkers = new ArrayList<ThreadPoolWorker>(numberOfThreads);
         tasks = new LinkedList<>();
-        minNumberOfThreads = min;
-        maxNumberOfThreads = max;
     }
 
     @Override
     public void start() {
-        threadPoolWorkers.forEach(ThreadPoolWorker::run);
+        threadPoolWorkers.forEach(ThreadPoolWorker::start);
     }
 
     @Override
     public void execute(Runnable runnable) {
-        synchronized (threadPoolWorkers) {
+        synchronized (tasks) {
             tasks.add(runnable);
-            if (threadPoolWorkers.size() < maxNumberOfThreads) {
-                ThreadPoolWorker newWorker = new ThreadPoolWorker();
-                threadPoolWorkers.add(newWorker);
-                newWorker.start();
-            } else {
-                notify();
-            }
+            notify();
         }
     }
 
@@ -51,12 +41,6 @@ public class ScalableThreadPool implements ThreadPool {
                         }
                     }
                     tasks.remove().run();
-                }
-                synchronized (threadPoolWorkers) {
-                    if (threadPoolWorkers.size() > minNumberOfThreads) {
-                        threadPoolWorkers.remove(this);
-                    }
-
                 }
             }
         }

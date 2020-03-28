@@ -1,4 +1,4 @@
-package edu.phystech.threadpools;
+package problem1;
 
 public interface ThreadPool {
     void start();
